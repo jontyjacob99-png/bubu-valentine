@@ -11,6 +11,16 @@ function showScene(id){
   el.classList.add("scene--active");
 }
 
+/* Smooth text swap: fade out -> change -> fade in */
+async function setTextSmooth(el, newText, { fadeOutMs = 520, fadeInDelayMs = 40 } = {}){
+  // fade out if currently shown
+  el.classList.remove("show");
+  await sleep(fadeOutMs);
+  el.textContent = newText;
+  await sleep(fadeInDelayMs);
+  el.classList.add("show");
+}
+
 /* Clouds canvas */
 function startCloudsCanvas(){
   const canvas = $("#cloudsCanvas");
@@ -76,7 +86,7 @@ function startCloudsCanvas(){
   requestAnimationFrame(frame);
 }
 
-/* Compute just-touch (no overlap) leaving gap for heart */
+/* Compute just-touch leaving gap for heart */
 function computeTouchTransforms(){
   const stage = $("#worldStage");
   const left = $("#imgLeftWrap");
@@ -106,43 +116,49 @@ async function runScene1(){
   heart.classList.remove("show", "thump");
   text.classList.remove("show");
 
-  // Hold far apart for 1.5s with text
+  // Show first line smoothly
   text.textContent = "EVEN THOUGH WE ARE FAR APART";
+  await sleep(60);
   text.classList.add("show");
+
+  // Hold far apart 1.5s
   await sleep(1500);
 
-  // Start moving after 1.5s
+  // Start moving
   const { leftX, rightX } = computeTouchTransforms();
   left.style.transform = `translateY(-50%) translateX(${leftX}px)`;
   right.style.transform = `translateY(-50%) translateX(${rightX}px)`;
 
-  // Fade out first text as movement begins
-  await sleep(250);
+  // Smooth fade out as movement begins
   text.classList.remove("show");
+  await sleep(520);
 
-  // Wait until they meet (transition is 4200ms)
+  // Wait until images meet (transition is 4200ms)
   await sleep(4200);
 
-  // Meeting moment: heart pops + message
+  // When they meet: show "YOU STILL..." for 1.5s (no heart yet), smoothly
+  await setTextSmooth(text, "YOU STILL ALWAYS KEEP ME CLOSE", { fadeOutMs: 0, fadeInDelayMs: 0 });
+  await sleep(1500);
+
+  // Smooth fade out before heart pop
+  text.classList.remove("show");
+  await sleep(520);
+
+  // Heart pop + thump + show "I LOVE YOU..." for 1.5s
   heart.classList.add("show");
   heart.classList.remove("thump");
   void heart.offsetWidth;
   heart.classList.add("thump");
 
-  text.textContent = "YOU STILL ALWAYS KEEP ME CLOSE";
-  await sleep(120);
-  text.classList.add("show");
+  await setTextSmooth(text, "I LOVE YOU MORE THAN YOU LOVE PUTTU KADALA", { fadeOutMs: 0, fadeInDelayMs: 0 });
+  await sleep(1500);
 
-  // Keep this line briefly, then switch to the next line you already wanted
-  await sleep(1200);
-  text.textContent = "I love you more than you love PUTTU AND KADALA";
-
-  // Keep the whole “meet moment” on screen ~4s total
-  await sleep(2800);
-
+  // Smooth fade out and end scene
   text.classList.remove("show");
+  await sleep(520);
+
   heart.classList.remove("show", "thump");
-  await sleep(350);
+  await sleep(250);
 }
 
 async function runPuttuScene(){
@@ -170,20 +186,27 @@ async function runScene2(){
   l1.textContent = "";
   l2.textContent = "";
 
+  // Line 1 smooth
   l1.textContent = "I KNOW YOURE MY VALENTINE, NOW AND FORVER.";
-  await sleep(120);
+  await sleep(80);
   l1.classList.add("show");
 
   await sleep(2200);
 
+  // Line 2 smooth
   l2.textContent = "BUT STILL";
-  await sleep(120);
+  await sleep(80);
   l2.classList.add("show");
 
   await sleep(1400);
+
+  // Optional: fade out before switching to question scene (smooth)
+  l1.classList.remove("show");
+  l2.classList.remove("show");
+  await sleep(520);
 }
 
-/* Faster + smoother (less lag) heart confetti */
+/* Smooth + fast heart confetti (optimized) */
 function startHeartsConfetti(){
   const canvas = $("#confetti");
   const ctx = canvas.getContext("2d");
@@ -191,7 +214,6 @@ function startHeartsConfetti(){
   let w, h, dpr;
 
   function resize(){
-    // Lower DPR a bit to reduce lag on phones/laptops
     dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     w = canvas.clientWidth;
     h = canvas.clientHeight;
@@ -203,18 +225,17 @@ function startHeartsConfetti(){
   resize();
 
   const hearts = ["❤️","💖","💘","💕","💗","💓","💞"];
-  const COUNT = 190; // dense but smooth
+  const COUNT = 190;
   const pieces = Array.from({ length: COUNT }).map(() => ({
     x: Math.random() * w,
     y: -80 - Math.random() * h,
     s: 18 + Math.random() * 18,
     vx: -0.8 + Math.random() * 1.6,
-    vy: 6.5 + Math.random() * 8.5,  // much faster
+    vy: 6.5 + Math.random() * 8.5,
     t: hearts[Math.floor(Math.random() * hearts.length)],
     life: 140 + Math.random() * 140
   }));
 
-  // Precompute a few font sizes to reduce per-frame string churn
   const fontCache = new Map();
   const getFont = (size) => {
     const key = Math.round(size);
@@ -225,22 +246,19 @@ function startHeartsConfetti(){
   };
 
   let last = performance.now();
-
   function frame(now){
-    const dt = Math.min(32, now - last); // clamp
+    const dt = Math.min(32, now - last);
     last = now;
 
     ctx.clearRect(0,0,w,h);
 
     for(const p of pieces){
-      // dt scaling for consistent motion
       const k = dt / 16.67;
 
       p.x += p.vx * k;
       p.y += p.vy * k;
       p.life -= 1 * k;
 
-      // slight side drift for life
       p.x += Math.sin((p.y + p.x) * 0.005) * 0.35 * k;
 
       if(p.y > h + 90 || p.x < -120 || p.x > w + 120 || p.life <= 0){
@@ -253,7 +271,6 @@ function startHeartsConfetti(){
         p.life = 140 + Math.random() * 140;
       }
 
-      // draw (no rotation for performance)
       ctx.font = getFont(p.s);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
