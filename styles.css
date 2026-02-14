@@ -133,7 +133,7 @@ body{
 }
 .hint{ margin-top:14px; color: rgba(255,255,255,.65); font-size: 13px; }
 
-/* Scene 1 clouds */
+/* Clouds */
 .cloudsWrap{ position:absolute; inset:0; overflow:hidden; }
 .cloudsCanvas{
   position:absolute; inset:0;
@@ -150,7 +150,7 @@ body{
   opacity: .95;
 }
 
-/* Scene 1 text */
+/* Scene 1 text (smooth) */
 .topText{
   position:absolute;
   top: clamp(14px, 2.6vw, 26px);
@@ -173,7 +173,7 @@ body{
   line-height: 1.25;
   opacity:0;
   transform: translateY(-6px);
-  transition: opacity 600ms ease, transform 600ms ease;
+  transition: opacity 700ms cubic-bezier(.2,.8,.2,1), transform 700ms cubic-bezier(.2,.8,.2,1);
   text-transform: uppercase;
   font-weight: 900;
 }
@@ -248,7 +248,7 @@ body{
   animation: heartThump2 900ms cubic-bezier(.2, 1.2, .2, 1) 1;
 }
 
-/* Scene PUTTU */
+/* PUTTU */
 .putBg{
   position:absolute; inset:0;
   background:
@@ -283,7 +283,6 @@ body{
   text-transform: uppercase;
   margin: 0;
 }
-
 .putImgWrap{
   position:relative;
   width: min(720px, 90vw);
@@ -362,6 +361,7 @@ body{
   0%,100%{ transform: scale(1) translateY(0); }
   50%{ transform: scale(1.02) translateY(-6px); }
 }
+
 .sceneCenter{
   margin:auto;
   width:min(920px, 92vw);
@@ -369,6 +369,7 @@ body{
   text-align:center;
   z-index: 2;
 }
+
 .bigLine{
   font-size: clamp(24px, 4.2vw, 54px);
   font-weight: 950;
@@ -376,7 +377,7 @@ body{
   margin: 0;
   opacity:0;
   transform: translateY(8px);
-  transition: opacity 700ms ease, transform 700ms ease;
+  transition: opacity 750ms cubic-bezier(.2,.8,.2,1), transform 750ms cubic-bezier(.2,.8,.2,1);
 }
 .bigLine.show{ opacity:1; transform: translateY(0); }
 .bigLine.dim{ color: rgba(255,255,255,.76); font-weight: 800; margin-top: 14px; }
