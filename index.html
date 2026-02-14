@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For Bubu ❤️</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Manrope:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#0b1020" />
+</head>
+
+<body>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+
+  <!-- Scene 0: Opener -->
+  <section id="scene0" class="scene scene--active scene--center">
+    <div class="card glass card--center">
+      <div class="sparkle" aria-hidden="true"></div>
+      <h1 class="title">
+        Click here, <span class="accent">Bubu</span> <span class="emoji">❤️</span>
+      </h1>
+      <p class="subtitle">I made something just for you.</p>
+      <button id="startBtn" class="btn btn--primary">
+        Click Me <span class="btnGlow" aria-hidden="true"></span>
+      </button>
+      <div class="hint">Tip: full screen looks extra cute ✨</div>
+    </div>
+  </section>
+
+  <!-- Scene 1: Clouds + globe images -->
+  <section id="scene1" class="scene scene--hidden">
+    <div class="cloudsWrap" aria-hidden="true">
+      <canvas id="cloudsCanvas" class="cloudsCanvas"></canvas>
+      <div class="cloudsTint"></div>
+    </div>
+
+    <div class="topText">
+      <div id="scene1Text" class="floatingText"></div>
+    </div>
+
+    <div id="worldStage" class="worldStage">
+      <div id="imgLeftWrap" class="imgWrap imgWrap--left">
+        <img id="imgLeft" src="assets/her.png" alt="Her globe (India)" />
+        <div class="tag glassTag">Bubu</div>
+      </div>
+
+      <div id="imgRightWrap" class="imgWrap imgWrap--right">
+        <img id="imgRight" src="assets/me.png" alt="My globe (USA)" />
+        <div class="tag glassTag">You</div>
+      </div>
+
+      <div id="midHeart" class="midHeart" aria-hidden="true">❤️</div>
+    </div>
+  </section>
+
+  <!-- Scene PUTTU: Separate scene, punch effects -->
+  <section id="scenePut" class="scene scene--hidden scene--center">
+    <div class="putBg" aria-hidden="true"></div>
+
+    <div class="putCard glass">
+      <div class="putTitle">PUTTU KADALA AINT NO MATCH FOR ME</div>
+
+      <div class="putImgWrap" id="putImgWrap">
+        <img src="assets/puttu%20kadala%20defeated.png" alt="Puttu kadala defeated" />
+        <div class="impactRings" aria-hidden="true"></div>
+        <div class="impactLines" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scene 2: Heart filled modern background + texts -->
+  <section id="scene2" class="scene scene--hidden">
+    <div class="loveBg" aria-hidden="true"></div>
+    <div class="sceneCenter glass">
+      <div id="scene2Line1" class="bigLine"></div>
+      <div id="scene2Line2" class="bigLine dim"></div>
+    </div>
+  </section>
+
+  <!-- Scene 3: Same background as Scene 2 -->
+  <section id="scene3" class="scene scene--hidden">
+    <div class="loveBg" aria-hidden="true"></div>
+    <div class="sceneCenter glass questionCenter">
+      <h2 class="questionTitle">WILL YOU BE MY VALENTINE CHAKARE?</h2>
+      <div class="yesRow">
+        <button class="btn btn--primary yesBtn">YES</button>
+        <button class="btn btn--primary yesBtn">YES</button>
+      </div>
+      <p class="micro">No wrong answers 😌</p>
+    </div>
+  </section>
+
+  <!-- Scene 4: Only AFTER YES click -->
+  <section id="scene4" class="scene scene--hidden scene--center">
+    <canvas id="confetti" class="confettiCanvas" aria-hidden="true"></canvas>
+
+    <div id="finalWrap" class="finalWrap glass finalHidden">
+      <h2 class="finalTitle">HAPPY VALENTINES DAY SHUTTUMANI 😘❤️</h2>
+      <div class="finalImgWrap">
+        <img id="finalCollage" src="assets/collage.JPG" alt="Final collage" />
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
