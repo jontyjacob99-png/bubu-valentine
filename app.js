@@ -11,7 +11,7 @@ function showScene(id){
   el.classList.add("scene--active");
 }
 
-/* Clouds “video-like” canvas */
+/* Clouds canvas */
 function startCloudsCanvas(){
   const canvas = $("#cloudsCanvas");
   const ctx = canvas.getContext("2d", { alpha: false });
@@ -76,7 +76,7 @@ function startCloudsCanvas(){
   requestAnimationFrame(frame);
 }
 
-/* Compute just-touch without overlap, leaving gap for heart */
+/* Compute just-touch (no overlap) leaving gap for heart */
 function computeTouchTransforms(){
   const stage = $("#worldStage");
   const left = $("#imgLeftWrap");
@@ -89,7 +89,7 @@ function computeTouchTransforms(){
   const leftRect = left.getBoundingClientRect();
   const rightRect = right.getBoundingClientRect();
 
-  const targetGap = Math.min(54, Math.max(34, stageRect.width * 0.05)); // 34–54px
+  const targetGap = Math.min(54, Math.max(34, stageRect.width * 0.05));
   const currentGap = rightRect.left - leftRect.right;
   const shrinkBy = currentGap - targetGap;
 
@@ -106,37 +106,39 @@ async function runScene1(){
   heart.classList.remove("show", "thump");
   text.classList.remove("show");
 
-  await sleep(60);
-
-  const { leftX, rightX } = computeTouchTransforms();
-
-  // Text appears immediately
-  text.textContent = "Even though we are so far apart, you always keep me close.";
+  // Hold far apart for 1.5s with text
+  text.textContent = "EVEN THOUGH WE ARE FAR APART";
   text.classList.add("show");
+  await sleep(1500);
 
-  // Start moving closer immediately
+  // Start moving after 1.5s
+  const { leftX, rightX } = computeTouchTransforms();
   left.style.transform = `translateY(-50%) translateX(${leftX}px)`;
   right.style.transform = `translateY(-50%) translateX(${rightX}px)`;
 
-  // Text stays 3s
-  await sleep(3000);
+  // Fade out first text as movement begins
+  await sleep(250);
   text.classList.remove("show");
 
-  // Wait until they’re basically meeting (transition is 4200ms)
-  await sleep(1350);
+  // Wait until they meet (transition is 4200ms)
+  await sleep(4200);
 
-  // Heart pops + 2-beat thump
+  // Meeting moment: heart pops + message
   heart.classList.add("show");
   heart.classList.remove("thump");
-  void heart.offsetWidth; // restart animation reliably
+  void heart.offsetWidth;
   heart.classList.add("thump");
 
-  text.textContent = "I love you more than you love PUTTU AND KADALA";
+  text.textContent = "YOU STILL ALWAYS KEEP ME CLOSE";
   await sleep(120);
   text.classList.add("show");
 
-  // Keep this scene 4 seconds
-  await sleep(4000);
+  // Keep this line briefly, then switch to the next line you already wanted
+  await sleep(1200);
+  text.textContent = "I love you more than you love PUTTU AND KADALA";
+
+  // Keep the whole “meet moment” on screen ~4s total
+  await sleep(2800);
 
   text.classList.remove("show");
   heart.classList.remove("show", "thump");
@@ -181,14 +183,16 @@ async function runScene2(){
   await sleep(1400);
 }
 
-/* Faster + more dense heart confetti */
+/* Faster + smoother (less lag) heart confetti */
 function startHeartsConfetti(){
   const canvas = $("#confetti");
   const ctx = canvas.getContext("2d");
 
   let w, h, dpr;
+
   function resize(){
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Lower DPR a bit to reduce lag on phones/laptops
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     w = canvas.clientWidth;
     h = canvas.clientHeight;
     canvas.width = Math.floor(w * dpr);
@@ -199,53 +203,67 @@ function startHeartsConfetti(){
   resize();
 
   const hearts = ["❤️","💖","💘","💕","💗","💓","💞"];
-  const pieces = Array.from({ length: 240 }).map(() => ({
+  const COUNT = 190; // dense but smooth
+  const pieces = Array.from({ length: COUNT }).map(() => ({
     x: Math.random() * w,
     y: -80 - Math.random() * h,
-    s: 18 + Math.random() * 20,
-    vx: -1.2 + Math.random() * 2.4,
-    vy: 2.8 + Math.random() * 4.8,
-    a: Math.random() * Math.PI * 2,
-    va: -0.04 + Math.random() * 0.08,
+    s: 18 + Math.random() * 18,
+    vx: -0.8 + Math.random() * 1.6,
+    vy: 6.5 + Math.random() * 8.5,  // much faster
     t: hearts[Math.floor(Math.random() * hearts.length)],
-    life: 180 + Math.random() * 160
+    life: 140 + Math.random() * 140
   }));
 
-  function frame(){
+  // Precompute a few font sizes to reduce per-frame string churn
+  const fontCache = new Map();
+  const getFont = (size) => {
+    const key = Math.round(size);
+    if (!fontCache.has(key)) {
+      fontCache.set(key, `${key}px Inter, system-ui, Apple Color Emoji, Segoe UI Emoji`);
+    }
+    return fontCache.get(key);
+  };
+
+  let last = performance.now();
+
+  function frame(now){
+    const dt = Math.min(32, now - last); // clamp
+    last = now;
+
     ctx.clearRect(0,0,w,h);
 
     for(const p of pieces){
-      p.x += p.vx;
-      p.y += p.vy;
-      p.a += p.va;
-      p.vy += 0.01;
-      p.life -= 1;
+      // dt scaling for consistent motion
+      const k = dt / 16.67;
+
+      p.x += p.vx * k;
+      p.y += p.vy * k;
+      p.life -= 1 * k;
+
+      // slight side drift for life
+      p.x += Math.sin((p.y + p.x) * 0.005) * 0.35 * k;
 
       if(p.y > h + 90 || p.x < -120 || p.x > w + 120 || p.life <= 0){
         p.x = Math.random() * w;
-        p.y = -80 - Math.random() * 220;
-        p.s = 18 + Math.random() * 20;
-        p.vx = -1.2 + Math.random() * 2.4;
-        p.vy = 3.0 + Math.random() * 5.0;
-        p.a = Math.random() * Math.PI * 2;
-        p.va = -0.04 + Math.random() * 0.08;
+        p.y = -80 - Math.random() * 240;
+        p.s = 18 + Math.random() * 18;
+        p.vx = -0.9 + Math.random() * 1.8;
+        p.vy = 7.0 + Math.random() * 9.5;
         p.t = hearts[Math.floor(Math.random() * hearts.length)];
-        p.life = 180 + Math.random() * 160;
+        p.life = 140 + Math.random() * 140;
       }
 
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.a);
-      ctx.font = `${p.s}px Inter, system-ui, Apple Color Emoji, Segoe UI Emoji`;
+      // draw (no rotation for performance)
+      ctx.font = getFont(p.s);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.globalAlpha = 0.98;
-      ctx.fillText(p.t, 0, 0);
-      ctx.restore();
+      ctx.fillText(p.t, p.x, p.y);
     }
 
     requestAnimationFrame(frame);
   }
+
   requestAnimationFrame(frame);
 }
 
