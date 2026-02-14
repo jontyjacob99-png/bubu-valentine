@@ -174,6 +174,8 @@ body{
   opacity:0;
   transform: translateY(-6px);
   transition: opacity 600ms ease, transform 600ms ease;
+  text-transform: uppercase;
+  font-weight: 900;
 }
 .floatingText.show{ opacity:1; transform: translateY(0); }
 
@@ -186,7 +188,6 @@ body{
   z-index: 4;
 }
 
-/* Place near edges initially */
 .imgWrap{
   position:absolute;
   top: 50%;
@@ -196,7 +197,6 @@ body{
   will-change: transform;
 }
 
-/* reduce height/length */
 .imgWrap img{
   display:block;
   height: min(58vh, 520px);
@@ -223,7 +223,6 @@ body{
   font-size: 12px;
 }
 
-/* big heart between images */
 .midHeart{
   position:absolute;
   left: 50%;
@@ -237,7 +236,6 @@ body{
 }
 .midHeart.show{ opacity:1; transform: translate(-50%, -50%) scale(1); }
 
-/* 2-beat heart thump */
 @keyframes heartThump2 {
   0%   { transform: translate(-50%, -50%) scale(0.85); }
   18%  { transform: translate(-50%, -50%) scale(1.15); }
@@ -271,30 +269,43 @@ body{
   text-align:center;
   position:relative;
   overflow:hidden;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 14px;
 }
 .putTitle{
   font-weight: 950;
   letter-spacing:-0.03em;
-  font-size: clamp(18px, 3vw, 34px);
-  margin-bottom: 14px;
+  font-size: clamp(18px, 2.8vw, 34px);
   text-transform: uppercase;
+  margin: 0;
 }
 
 .putImgWrap{
   position:relative;
-  width: min(760px, 92vw);
+  width: min(720px, 90vw);
+  max-height: min(60vh, 520px);
   margin: 0 auto;
+
   border-radius: 22px;
   overflow:hidden;
   border: 1px solid rgba(255,255,255,.16);
   box-shadow: 0 26px 80px rgba(0,0,0,.55);
-  transform: translateZ(0);
+  background: rgba(0,0,0,.14);
 }
-.putImgWrap img{ width:100%; display:block; }
+.putImgWrap img{
+  width:100%;
+  max-height: min(60vh, 520px);
+  object-fit: contain;
+  display:block;
+}
 
 .putPunchIn{ animation: punchIn 520ms cubic-bezier(.2,1.2,.2,1) 1; }
 @keyframes punchIn{
-  0%{ transform: scale(.78); filter: blur(6px); }
+  0%{ transform: scale(.82); filter: blur(6px); }
   60%{ transform: scale(1.03); filter:none; }
   100%{ transform: scale(1); }
 }
@@ -336,7 +347,7 @@ body{
   100%{ opacity:0; }
 }
 
-/* Scene 2/3 love background */
+/* Scene 2/3 */
 .loveBg{
   position:absolute; inset:0;
   background:
